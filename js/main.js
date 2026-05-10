@@ -227,6 +227,10 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, Number(value)));
 }
 
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
 function completedStates() {
   return new Set(SPEC.completedStates || []);
 }
@@ -370,14 +374,25 @@ function exportState() {
 
 async function importState(file) {
   const raw = await file.text();
-  const parsed = JSON.parse(raw);
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error('file is not valid JSON');
+  }
+  if (!isPlainObject(parsed)) {
+    throw new Error('backup must be a JSON object');
+  }
+  if (!Array.isArray(parsed.items)) {
+    throw new Error('backup is missing an "items" array');
+  }
   commit({
     ...seedState(),
     ...parsed,
-    items: (parsed.items || []).map((item) => normalize(item)),
-    ui: { ...seedState().ui, ...(parsed.ui || {}) },
+    items: parsed.items.map((item) => normalize(item)),
+    ui: { ...seedState().ui, ...(isPlainObject(parsed.ui) ? parsed.ui : {}) },
   });
-  showToast('Imported backup.');
+  showToast(`Imported ${parsed.items.length} ${parsed.items.length === 1 ? SPEC.itemLabel : SPEC.itemPluralLabel.toLowerCase()}.`);
 }
 
 async function copyValue(value, label) {
@@ -684,7 +699,7 @@ document.addEventListener('change', async (event) => {
       await importState(file);
     } catch (error) {
       console.error(error);
-      showToast('Import failed.');
+      showToast(`Import failed: ${error.message || 'unknown error'}.`);
     } finally {
       event.target.value = '';
     }
