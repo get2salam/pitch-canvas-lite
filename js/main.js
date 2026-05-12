@@ -248,6 +248,7 @@ function toneForDate(item) {
 }
 
 function normalize(item = {}) {
+  if (!isPlainObject(item)) item = {};
   return {
     id: item.id || uid(),
     title: item.title || `New ${SPEC.itemLabel}`,
@@ -386,6 +387,10 @@ async function importState(file) {
   if (!Array.isArray(parsed.items)) {
     throw new Error('backup is missing an "items" array');
   }
+  const invalidIndex = parsed.items.findIndex((item) => !isPlainObject(item));
+  if (invalidIndex !== -1) {
+    throw new Error(`backup item at index ${invalidIndex} is not an object`);
+  }
   commit({
     ...seedState(),
     ...parsed,
@@ -493,8 +498,10 @@ function renderList(items) {
     return;
   }
 
-  refs.list.innerHTML = items.map((item) => `
-    <button class="item ${item.id === state.ui.selectedId ? 'is-selected' : ''}" type="button" data-id="${item.id}">
+  refs.list.innerHTML = items.map((item) => {
+    const isSelected = item.id === state.ui.selectedId;
+    return `
+    <button class="item ${isSelected ? 'is-selected' : ''}" type="button" data-id="${item.id}" aria-current="${isSelected ? 'true' : 'false'}">
       <div class="item-top">
         <strong>${escapeHtml(item.title)}</strong>
         <span class="score">${priority(item)}</span>
@@ -512,7 +519,8 @@ function renderList(items) {
         <span>Friction ${item.effort}/10</span>
       </div>
     </button>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function renderEditor(item) {
