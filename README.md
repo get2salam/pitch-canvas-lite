@@ -35,6 +35,7 @@ Then open <http://localhost:8000>.
 
 - `N` creates a new pitch block
 - `/` focuses the search box
+- `Esc` clears the search box while it is focused
 
 ## Privacy
 

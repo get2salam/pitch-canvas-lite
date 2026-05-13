@@ -170,6 +170,9 @@ const refs = {
 const toastHost = (() => {
   const host = document.createElement('div');
   host.className = 'toast-host';
+  host.setAttribute('role', 'status');
+  host.setAttribute('aria-live', 'polite');
+  host.setAttribute('aria-atomic', 'true');
   document.body.appendChild(host);
   return host;
 })();
@@ -224,7 +227,9 @@ function escapeHtml(value) {
 }
 
 function clamp(value, min, max) {
-  return Math.max(min, Math.min(max, Number(value)));
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return min;
+  return Math.max(min, Math.min(max, numeric));
 }
 
 function isPlainObject(value) {
@@ -489,10 +494,13 @@ function renderInsights(items) {
 
 function renderList(items) {
   if (!items.length) {
+    const isFiltered = state.items.length > 0;
+    const title = isFiltered ? `No matching ${SPEC.itemPluralLabel.toLowerCase()}` : SPEC.emptyTitle;
+    const body = isFiltered ? 'Clear the search or filters to see the full board.' : SPEC.emptyBody;
     refs.list.innerHTML = `
       <div class="empty">
-        <strong>${SPEC.emptyTitle}</strong>
-        <p>${SPEC.emptyBody}</p>
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(body)}</p>
       </div>
     `;
     return;
@@ -715,6 +723,12 @@ document.addEventListener('change', async (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && event.target === refs.search && state.ui.search) {
+    event.preventDefault();
+    commit({ ...state, ui: { ...state.ui, search: '' } });
+    refs.search.focus();
+    return;
+  }
   if (event.target.closest('input, textarea, select')) return;
   if (event.key.toLowerCase() === 'n') {
     event.preventDefault();
