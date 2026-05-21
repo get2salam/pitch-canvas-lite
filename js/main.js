@@ -288,12 +288,22 @@ function priority(item) {
   return item.score * 6 + item.metric * 5 + dueBoost + stateWeight(item.state) - item.effort * 4;
 }
 
+function normalizeUi(ui) {
+  const source = isPlainObject(ui) ? ui : {};
+  return {
+    search: typeof source.search === 'string' ? source.search : '',
+    category: SPEC.categories.includes(source.category) ? source.category : 'all',
+    status: SPEC.states.includes(source.status) ? source.status : 'all',
+    selectedId: typeof source.selectedId === 'string' ? source.selectedId : null,
+  };
+}
+
 function seedState() {
   return {
     boardTitle: SPEC.boardTitle,
     boardSubtitle: SPEC.boardSubtitle,
     items: SPEC.items.map((item) => normalize(item)),
-    ui: { search: '', category: 'all', status: 'all', selectedId: null },
+    ui: normalizeUi(),
   };
 }
 
@@ -306,7 +316,7 @@ function hydrate() {
       ...seedState(),
       ...parsed,
       items: (parsed.items || []).map((item) => normalize(item)),
-      ui: { ...seedState().ui, ...(parsed.ui || {}) },
+      ui: normalizeUi(parsed.ui),
     };
   } catch (error) {
     console.warn('Falling back to seed state', error);
@@ -413,7 +423,7 @@ async function importState(file) {
     ...seedState(),
     ...parsed,
     items: parsed.items.map((item) => normalize(item)),
-    ui: { ...seedState().ui, ...(isPlainObject(parsed.ui) ? parsed.ui : {}) },
+    ui: normalizeUi(parsed.ui),
   });
   showToast(`Imported ${parsed.items.length} ${parsed.items.length === 1 ? SPEC.itemLabel : SPEC.itemPluralLabel.toLowerCase()}.`);
 }
