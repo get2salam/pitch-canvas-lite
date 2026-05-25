@@ -33,13 +33,15 @@ Then open <http://localhost:8000>.
 
 ## Keyboard shortcuts
 
-- `N` creates a new pitch block
+- `N` creates a new pitch block and focuses its title for renaming
 - `/` focuses the search box
 - `Esc` clears the search box while it is focused
 
+Shortcuts ignore key presses that include the `Cmd`, `Ctrl`, or `Alt` modifier so they do not collide with browser commands like new-window.
+
 ## Privacy
 
-Everything stays in your browser unless you export a JSON backup.
+Everything stays in your browser unless you export a JSON backup. Exported files are named `pitch-canvas-lite-YYYY-MM-DD.json` so successive backups do not overwrite each other.
 
 ## License
 

@@ -376,6 +376,11 @@ function addItem() {
     ui: { ...state.ui, selectedId: item.id },
   });
   showToast(`Added a new ${SPEC.itemLabel}.`);
+  const titleInput = refs.editor.querySelector('[data-item-field="title"]');
+  if (titleInput) {
+    titleInput.focus();
+    titleInput.select();
+  }
 }
 
 function removeSelected() {
@@ -395,7 +400,7 @@ function exportState() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${SPEC.slug}.json`;
+  link.download = `${SPEC.slug}-${todayISO()}.json`;
   link.click();
   URL.revokeObjectURL(url);
   showToast('Downloaded backup.');
@@ -746,6 +751,7 @@ document.addEventListener('change', async (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+  if (event.isComposing) return;
   if (event.key === 'Escape' && event.target === refs.search && state.ui.search) {
     event.preventDefault();
     commit({ ...state, ui: { ...state.ui, search: '' } });
@@ -753,9 +759,11 @@ document.addEventListener('keydown', (event) => {
     return;
   }
   if (event.target.closest('input, textarea, select')) return;
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
   if (event.key.toLowerCase() === 'n') {
     event.preventDefault();
     addItem();
+    return;
   }
   if (event.key === '/') {
     event.preventDefault();
