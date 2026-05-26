@@ -47,6 +47,8 @@ Everything stays in your browser unless you export a JSON backup. Exported files
 
 Destructive actions confirm before they run so an accidental click cannot wipe your board. **Remove** asks before deleting the selected pitch block, and **Re-seed sample** asks before replacing the board when it already contains pitch blocks.
 
+Imported backups are capped at 5 MB and 1000 pitch blocks so a corrupted or oversized file surfaces a clear error instead of locking the browser.
+
 ## License
 
 MIT

@@ -151,6 +151,8 @@ const SPEC = {
   ]
 };
 const STORAGE_KEY = `${SPEC.slug}/state/v3`;
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+const MAX_IMPORT_ITEMS = 1000;
 const refs = {
   boardTitle: document.querySelector('[data-role="board-title"]'),
   boardSubtitle: document.querySelector('[data-role="board-subtitle"]'),
@@ -408,6 +410,10 @@ function exportState() {
 }
 
 async function importState(file) {
+  if (file.size > MAX_IMPORT_BYTES) {
+    const limitMb = Math.round(MAX_IMPORT_BYTES / (1024 * 1024));
+    throw new Error(`backup is larger than ${limitMb} MB`);
+  }
   const raw = await file.text();
   let parsed;
   try {
@@ -420,6 +426,9 @@ async function importState(file) {
   }
   if (!Array.isArray(parsed.items)) {
     throw new Error('backup is missing an "items" array');
+  }
+  if (parsed.items.length > MAX_IMPORT_ITEMS) {
+    throw new Error(`backup contains more than ${MAX_IMPORT_ITEMS} ${SPEC.itemPluralLabel.toLowerCase()}`);
   }
   const invalidIndex = parsed.items.findIndex((item) => !isPlainObject(item));
   if (invalidIndex !== -1) {
