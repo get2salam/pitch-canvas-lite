@@ -386,6 +386,7 @@ function addItem() {
 function removeSelected() {
   const target = selectedItem();
   if (!target) return;
+  if (!window.confirm(`Remove "${target.title}"? This cannot be undone.`)) return;
   const nextItems = state.items.filter((item) => item.id !== target.id);
   commit({
     ...state,
@@ -708,7 +709,12 @@ document.addEventListener('click', (event) => {
 
   const explicit = event.target.closest('[data-action]')?.dataset.action;
   if (explicit === 'new') { addItem(); return; }
-  if (explicit === 'reset') { commit(seedState()); showToast('Re-seeded sample board.'); return; }
+  if (explicit === 'reset') {
+    if (state.items.length && !window.confirm('Replace the current board with the sample? Existing pitch blocks will be lost.')) return;
+    commit(seedState());
+    showToast('Re-seeded sample board.');
+    return;
+  }
   if (explicit === 'remove-current') { removeSelected(); return; }
   if (explicit === 'export') { exportState(); return; }
   if (explicit === 'import') { refs.importFile.click(); return; }

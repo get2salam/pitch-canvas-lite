@@ -43,6 +43,10 @@ Shortcuts ignore key presses that include the `Cmd`, `Ctrl`, or `Alt` modifier s
 
 Everything stays in your browser unless you export a JSON backup. Exported files are named `pitch-canvas-lite-YYYY-MM-DD.json` so successive backups do not overwrite each other.
 
+## Safety
+
+Destructive actions confirm before they run so an accidental click cannot wipe your board. **Remove** asks before deleting the selected pitch block, and **Re-seed sample** asks before replacing the board when it already contains pitch blocks.
+
 ## License
 
 MIT
