@@ -329,8 +329,18 @@ function hydrate() {
 let state = hydrate();
 if (!state.ui.selectedId && state.items[0]) state.ui.selectedId = state.items[0].id;
 
+let persistWarned = false;
 function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    persistWarned = false;
+  } catch (error) {
+    console.warn('Could not persist state', error);
+    if (!persistWarned) {
+      persistWarned = true;
+      showToast('Could not save locally. Export a backup to avoid losing work.');
+    }
+  }
 }
 
 function filteredItems() {
