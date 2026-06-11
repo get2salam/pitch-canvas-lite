@@ -1,0 +1,9 @@
+{
+  "name": "pitch-canvas-lite",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node tools/verify-static.mjs"
+  }
+}

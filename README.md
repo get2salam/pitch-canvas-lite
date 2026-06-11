@@ -31,6 +31,14 @@ python -m http.server 8000
 
 Then open <http://localhost:8000>.
 
+## Local verification
+
+```bash
+npm run verify
+```
+
+The dependency-free guard validates the pitch-canvas SPEC, sample data, import limits, and DOM hooks. GitHub Actions runs the same command on pushes and pull requests.
+
 ## Keyboard shortcuts
 
 - `N` creates a new pitch block and focuses its title for renaming
