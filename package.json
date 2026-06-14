@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "example:backup": "node examples/investor-review-backup.mjs",
     "verify": "node tools/verify-static.mjs"
   }
 }

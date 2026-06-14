@@ -1,5 +1,9 @@
 import { readFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import vm from 'node:vm';
+
+const execFileAsync = promisify(execFile);
 
 const [html, js, readme] = await Promise.all([
   readFile('index.html', 'utf8'),
@@ -60,5 +64,14 @@ assert(spec.actions.every((action) => action.id && action.label && action.mode),
 assert(js.includes('const MAX_IMPORT_BYTES = 5 * 1024 * 1024;'), 'Import byte cap changed unexpectedly');
 assert(js.includes('const MAX_IMPORT_ITEMS = 1000;'), 'Import item cap changed unexpectedly');
 assert(readme.includes('npm run verify'), 'README should document npm run verify');
+assert(readme.includes('example:backup'), 'README should document the runnable import example');
+
+const { stdout: exampleStdout } = await execFileAsync(process.execPath, ['examples/investor-review-backup.mjs']);
+const exampleBackup = JSON.parse(exampleStdout);
+assert(exampleBackup.schema === `${spec.slug}/v3`, 'Example backup schema must match the app import schema');
+assert(Array.isArray(exampleBackup.items), 'Example backup must include an items array');
+assert(exampleBackup.items.length >= 3, 'Example backup should include at least three pitch blocks');
+assert(exampleBackup.items.every((item) => spec.categories.includes(item.category)), 'Example backup contains an unknown category');
+assert(exampleBackup.items.every((item) => spec.states.includes(item.state)), 'Example backup contains an unknown state');
 
 console.log(`Verified ${spec.title}: ${spec.items.length} sample pitch blocks, ${jsRoles.length} DOM roles, ${htmlActions.length} page actions.`);

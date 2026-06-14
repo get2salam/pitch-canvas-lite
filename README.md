@@ -39,6 +39,17 @@ npm run verify
 
 The dependency-free guard validates the pitch-canvas SPEC, sample data, import limits, and DOM hooks. GitHub Actions runs the same command on pushes and pull requests.
 
+## Runnable import example
+
+Generate a deterministic investor-review canvas that can be imported through the app's **Import** button:
+
+```bash
+npm run --silent example:backup > investor-review.json
+python -m http.server 8000
+```
+
+Then open <http://localhost:8000>, choose **Import**, and select `investor-review.json`. The example produces a valid `pitch-canvas-lite/v3` backup with three pitch blocks covering problem framing, proof, and close rehearsal, so it doubles as a quick smoke test for the JSON import path.
+
 ## Keyboard shortcuts
 
 - `N` creates a new pitch block and focuses its title for renaming
