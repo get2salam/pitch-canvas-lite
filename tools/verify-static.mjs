@@ -63,6 +63,9 @@ for (const [index, item] of spec.items.entries()) {
 assert(spec.actions.every((action) => action.id && action.label && action.mode), 'Every quick action needs an id, label, and mode');
 assert(js.includes('const MAX_IMPORT_BYTES = 5 * 1024 * 1024;'), 'Import byte cap changed unexpectedly');
 assert(js.includes('const MAX_IMPORT_ITEMS = 1000;'), 'Import item cap changed unexpectedly');
+assert(js.includes('function normalizeItems(items = [])'), 'Imported pitch blocks should normalize as a collection');
+assert(js.includes('const usedIds = new Set();'), 'Imported pitch blocks should guard duplicate ids');
+assert(js.includes('normalizeText(item.title'), 'Imported text fields should be normalized defensively');
 assert(readme.includes('npm run verify'), 'README should document npm run verify');
 assert(readme.includes('example:backup'), 'README should document the runnable import example');
 

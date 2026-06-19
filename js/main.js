@@ -267,21 +267,42 @@ function toneForDate(item) {
   return 'success';
 }
 
-function normalize(item = {}) {
+function normalizeText(value, fallback, maxLength = 240) {
+  if (typeof value !== 'string') return fallback;
+  const trimmed = value.trim();
+  if (!trimmed) return fallback;
+  return trimmed.slice(0, maxLength);
+}
+
+function normalizeId(value, usedIds) {
+  const base = typeof value === 'string' && value.trim() ? value.trim().slice(0, 120) : uid();
+  if (!usedIds) return base;
+  let next = base;
+  while (usedIds.has(next)) next = uid();
+  usedIds.add(next);
+  return next;
+}
+
+function normalize(item = {}, usedIds) {
   if (!isPlainObject(item)) item = {};
   return {
-    id: item.id || uid(),
-    title: item.title || `New ${SPEC.itemLabel}`,
-    note: item.note || SPEC.defaults.note,
+    id: normalizeId(item.id, usedIds),
+    title: normalizeText(item.title, `New ${SPEC.itemLabel}`, 120),
+    note: normalizeText(item.note, SPEC.defaults.note, 1000),
     category: SPEC.categories.includes(item.category) ? item.category : SPEC.categories[0],
     state: SPEC.states.includes(item.state) ? item.state : SPEC.states[0],
     score: clamp(item.score ?? 7, 1, 10),
     effort: clamp(item.effort ?? 3, 1, 10),
     metric: clamp(item.metric ?? SPEC.metric.default ?? 6, SPEC.metric.min, SPEC.metric.max),
-    textOne: item.textOne || SPEC.textOne.default,
-    textTwo: item.textTwo || SPEC.textTwo.default,
+    textOne: normalizeText(item.textOne, SPEC.textOne.default, 160),
+    textTwo: normalizeText(item.textTwo, SPEC.textTwo.default, 160),
     date: isValidISODate(item.date) ? item.date : todayISO(3),
   };
+}
+
+function normalizeItems(items = []) {
+  const usedIds = new Set();
+  return items.map((item) => normalize(item, usedIds));
 }
 
 function priority(item) {
@@ -304,7 +325,7 @@ function seedState() {
   return {
     boardTitle: SPEC.boardTitle,
     boardSubtitle: SPEC.boardSubtitle,
-    items: SPEC.items.map((item) => normalize(item)),
+    items: normalizeItems(SPEC.items),
     ui: normalizeUi(),
   };
 }
@@ -317,7 +338,7 @@ function hydrate() {
     return {
       ...seedState(),
       ...parsed,
-      items: (parsed.items || []).map((item) => normalize(item)),
+      items: normalizeItems(parsed.items || []),
       ui: normalizeUi(parsed.ui),
     };
   } catch (error) {
@@ -447,7 +468,7 @@ async function importState(file) {
   commit({
     ...seedState(),
     ...parsed,
-    items: parsed.items.map((item) => normalize(item)),
+    items: normalizeItems(parsed.items),
     ui: normalizeUi(parsed.ui),
   });
   showToast(`Imported ${parsed.items.length} ${parsed.items.length === 1 ? SPEC.itemLabel : SPEC.itemPluralLabel.toLowerCase()}.`);
