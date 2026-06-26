@@ -50,6 +50,16 @@ python -m http.server 8000
 
 Then open <http://localhost:8000>, choose **Import**, and select `investor-review.json`. The example produces a valid `pitch-canvas-lite/v3` backup with three pitch blocks covering problem framing, proof, and close rehearsal, so it doubles as a quick smoke test for the JSON import path.
 
+## Runnable rehearsal brief example
+
+Turn the same backup into a markdown rehearsal queue for a founder or investor update:
+
+```bash
+npm run --silent example:backup | npm run --silent example:brief
+```
+
+`example:brief` also works without piped input, in which case it reads the bundled investor-review backup generator. The script validates the backup schema, rejects unknown block categories or states, and prints the top active pitch blocks with audience, proof, rehearsal date, and priority so the exported JSON is useful outside the browser too.
+
 ## Keyboard shortcuts
 
 - `N` creates a new pitch block and focuses its title for renaming

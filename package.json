@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "example:backup": "node examples/investor-review-backup.mjs",
+    "example:brief": "node examples/rehearsal-brief.mjs",
     "verify": "node tools/verify-static.mjs"
   }
 }

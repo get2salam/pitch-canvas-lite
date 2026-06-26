@@ -68,6 +68,7 @@ assert(js.includes('const usedIds = new Set();'), 'Imported pitch blocks should 
 assert(js.includes('normalizeText(item.title'), 'Imported text fields should be normalized defensively');
 assert(readme.includes('npm run verify'), 'README should document npm run verify');
 assert(readme.includes('example:backup'), 'README should document the runnable import example');
+assert(readme.includes('example:brief'), 'README should document the rehearsal brief example');
 
 const { stdout: exampleStdout } = await execFileAsync(process.execPath, ['examples/investor-review-backup.mjs']);
 const exampleBackup = JSON.parse(exampleStdout);
@@ -76,5 +77,10 @@ assert(Array.isArray(exampleBackup.items), 'Example backup must include an items
 assert(exampleBackup.items.length >= 3, 'Example backup should include at least three pitch blocks');
 assert(exampleBackup.items.every((item) => spec.categories.includes(item.category)), 'Example backup contains an unknown category');
 assert(exampleBackup.items.every((item) => spec.states.includes(item.state)), 'Example backup contains an unknown state');
+
+const { stdout: briefStdout } = await execFileAsync(process.execPath, ['examples/rehearsal-brief.mjs'], { input: exampleStdout });
+assert(briefStdout.includes('# Investor review pitch canvas'), 'Rehearsal brief should include the imported board title');
+assert(briefStdout.includes('Focus queue: 3 active pitch blocks'), 'Rehearsal brief should count active pitch blocks');
+assert(briefStdout.includes('Pain narrative opening'), 'Rehearsal brief should surface the top pitch block');
 
 console.log(`Verified ${spec.title}: ${spec.items.length} sample pitch blocks, ${jsRoles.length} DOM roles, ${htmlActions.length} page actions.`);
