@@ -271,7 +271,7 @@ function normalizeText(value, fallback, maxLength = 240) {
   if (typeof value !== 'string') return fallback;
   const trimmed = value.trim();
   if (!trimmed) return fallback;
-  return trimmed.slice(0, maxLength);
+  return [...trimmed].slice(0, maxLength).join('');
 }
 
 function normalizeId(value, usedIds) {

@@ -31,6 +31,37 @@ function extractSpec(source) {
   throw new Error('SPEC object is not closed');
 }
 
+function extractFunction(source, name) {
+  const marker = `function ${name}(`;
+  const start = source.indexOf(marker);
+  assert(start >= 0, `${name} function is missing`);
+  const bodyStart = source.indexOf('{', start);
+  let depth = 0;
+
+  for (let index = bodyStart; index < source.length; index += 1) {
+    if (source[index] === '{') depth += 1;
+    if (source[index] === '}') depth -= 1;
+    if (depth === 0) return source.slice(start, index + 1);
+  }
+  throw new Error(`${name} function is not closed`);
+}
+
+function hasLoneSurrogate(value) {
+  for (let index = 0; index < value.length; index += 1) {
+    const code = value.charCodeAt(index);
+    const isHigh = code >= 0xd800 && code <= 0xdbff;
+    const isLow = code >= 0xdc00 && code <= 0xdfff;
+    if (isHigh) {
+      const next = value.charCodeAt(index + 1);
+      if (!(next >= 0xdc00 && next <= 0xdfff)) return true;
+      index += 1;
+    } else if (isLow) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const spec = extractSpec(js);
 const htmlRoles = unique(capture(/data-role="([^"]+)"/g, html));
 const htmlFields = unique(capture(/data-field="([^"]+)"/g, html));
@@ -66,6 +97,14 @@ assert(js.includes('const MAX_IMPORT_ITEMS = 1000;'), 'Import item cap changed u
 assert(js.includes('function normalizeItems(items = [])'), 'Imported pitch blocks should normalize as a collection');
 assert(js.includes('const usedIds = new Set();'), 'Imported pitch blocks should guard duplicate ids');
 assert(js.includes('normalizeText(item.title'), 'Imported text fields should be normalized defensively');
+
+const normalizeText = vm.runInNewContext(`(${extractFunction(js, 'normalizeText')})`);
+const emojiTitle = `A${'🚀'.repeat(64)}`;
+assert(normalizeText(emojiTitle, 'fallback', 120) === emojiTitle, 'normalizeText must count emoji as whole characters, not UTF-16 code units, when checking the length cap');
+const oversizedEmojiNote = '🚀'.repeat(200);
+const truncatedEmojiNote = normalizeText(oversizedEmojiNote, 'fallback', 120);
+assert(!hasLoneSurrogate(truncatedEmojiNote), 'normalizeText must not cut a surrogate pair in half when truncating long input');
+assert(truncatedEmojiNote === '🚀'.repeat(120), 'normalizeText should keep exactly maxLength whole characters when truncation is needed');
 assert(readme.includes('npm run verify'), 'README should document npm run verify');
 assert(readme.includes('example:backup'), 'README should document the runnable import example');
 assert(readme.includes('example:brief'), 'README should document the rehearsal brief example');
