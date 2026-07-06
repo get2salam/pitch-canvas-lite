@@ -37,7 +37,7 @@ Then open <http://localhost:8000>.
 npm run verify
 ```
 
-The dependency-free guard validates the pitch-canvas SPEC, sample data, import limits, and DOM hooks. GitHub Actions runs the same command on pushes and pull requests.
+`npm run verify` first runs `npm run lint`, a `node --check` pass over every shipped script, then the dependency-free guard that validates the pitch-canvas SPEC, sample data, import limits, and DOM hooks. The guard only regex-extracts and evaluates small fragments of `js/main.js` (the SPEC object, a couple of named functions), so the lint pass exists to catch a plain syntax error anywhere else in the file before it ships. GitHub Actions runs the same `npm run verify` command on pushes and pull requests.
 
 ## Runnable import example
 

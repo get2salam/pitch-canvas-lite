@@ -6,6 +6,7 @@
   "scripts": {
     "example:backup": "node examples/investor-review-backup.mjs",
     "example:brief": "node examples/rehearsal-brief.mjs",
-    "verify": "node tools/verify-static.mjs"
+    "lint": "node tools/check-syntax.mjs",
+    "verify": "npm run lint && node tools/verify-static.mjs"
   }
 }
