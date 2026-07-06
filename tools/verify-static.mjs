@@ -108,6 +108,7 @@ assert(truncatedEmojiNote === '🚀'.repeat(120), 'normalizeText should keep exa
 assert(readme.includes('npm run verify'), 'README should document npm run verify');
 assert(readme.includes('example:backup'), 'README should document the runnable import example');
 assert(readme.includes('example:brief'), 'README should document the rehearsal brief example');
+assert(readme.includes('example:balance'), 'README should document the canvas balance example');
 
 const { stdout: exampleStdout } = await execFileAsync(process.execPath, ['examples/investor-review-backup.mjs']);
 const exampleBackup = JSON.parse(exampleStdout);
@@ -121,5 +122,15 @@ const { stdout: briefStdout } = await execFileAsync(process.execPath, ['examples
 assert(briefStdout.includes('# Investor review pitch canvas'), 'Rehearsal brief should include the imported board title');
 assert(briefStdout.includes('Focus queue: 3 active pitch blocks'), 'Rehearsal brief should count active pitch blocks');
 assert(briefStdout.includes('Pain narrative opening'), 'Rehearsal brief should surface the top pitch block');
+
+let balanceError;
+try {
+  await execFileAsync(process.execPath, ['examples/canvas-balance-check.mjs'], { input: exampleStdout });
+} catch (error) {
+  balanceError = error;
+}
+assert(balanceError?.code === 1, 'Canvas balance check should exit non-zero when a category is missing');
+assert(balanceError.stdout.includes('Offer: 0 blocks'), 'Canvas balance check should report the missing Offer category');
+assert(balanceError.stdout.includes('Blocked: Offer'), 'Canvas balance check should block on a missing category');
 
 console.log(`Verified ${spec.title}: ${spec.items.length} sample pitch blocks, ${jsRoles.length} DOM roles, ${htmlActions.length} page actions.`);

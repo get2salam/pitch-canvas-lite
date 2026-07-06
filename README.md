@@ -60,6 +60,16 @@ npm run --silent example:backup | npm run --silent example:brief
 
 `example:brief` also works without piped input, in which case it reads the bundled investor-review backup generator. The script validates the backup schema, rejects unknown block categories or states, and prints the top active pitch blocks with audience, proof, rehearsal date, and priority so the exported JSON is useful outside the browser too.
 
+## Runnable canvas balance example
+
+A pitch with a missing category is easy to miss inside the app but obvious from a script. Check that every category has coverage before an investor meeting:
+
+```bash
+npm run --silent example:backup | npm run --silent example:balance
+```
+
+`example:balance` also falls back to the bundled investor-review backup when run without piped input. For each of **Problem**, **Proof**, **Offer**, and **Close** it reports how many pitch blocks exist and how many are rehearsed or delivered, then exits non-zero if any category has zero blocks. Running it against the bundled investor-review backup fails on purpose: that sample board never fills in an Offer block, which is exactly the kind of gap this check is meant to catch before a real pitch.
+
 ## Keyboard shortcuts
 
 - `N` creates a new pitch block and focuses its title for renaming

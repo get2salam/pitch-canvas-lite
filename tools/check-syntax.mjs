@@ -11,6 +11,7 @@ const FILES = [
   'tools/verify-static.mjs',
   'examples/investor-review-backup.mjs',
   'examples/rehearsal-brief.mjs',
+  'examples/canvas-balance-check.mjs',
 ];
 
 let failed = false;
